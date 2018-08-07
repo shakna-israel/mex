@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/sh -x
 
-VER='0.2.0'
+VER='0.2.1'
 
 if [ -z "$1" ]; then
   echo 'No file supplied.' >&2
@@ -58,12 +58,12 @@ done < "$1"
 
 macro() {
   # If we have a macro file, find and replace.
-  if [ -f '.mex' ]; then
+  if [ -f "$2"/'.mex' ]; then
     while IFS= read -r line; do
       key=$(echo "$line" | awk '{print $1}' | sed -e 's/[]\/$*.^[]/\\&/g')
       value=$(echo "$line" | awk '{print $2}' | sed -e 's/[\/&]/\\&/g')
       echo "$1" | sed "s/\_$key\_/$value/g"
-    done < '.mex'
+    done < "$2"/'.mex'
   fi
 }
 
@@ -85,8 +85,9 @@ linecheck() {
   fi
 }
 
+root=$(dirname "$1")
 data=$(expand "$1")
-data=$(macro "$data")
+data=$(macro "$data" "$root")
 linecheck "$data"
 name=$(basename "$1" '.mf')
 
@@ -98,4 +99,4 @@ if [ -f "$name".f ]; then
 fi
 
 # Render to file
-echo "$data" > "$name".f
+echo "$data" > "$root"/"$name".f
