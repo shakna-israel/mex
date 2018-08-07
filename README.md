@@ -16,6 +16,28 @@ Will produce the file: ```file.f```.
 
 ---
 
+## Install:
+
+You can use the provided Makefile:
+
+```
+make install
+```
+
+You can also tweak the install location by setting PREFIX, and BIN.
+
+Uninstall is similar:
+
+```
+make uninstall
+```
+
+If you changed any value on install, make sure you also change it on uninstall.
+
+*(mex is also self-contained. Copy it to anywhere in PATH if you would rather.)*
+
+---
+
 ## Macro Language
 
 The language is exceptionally simple, and without syntax checking.
