@@ -101,8 +101,6 @@ real x
 x=27
 ```
 
-**Caution**: These macros pass through sed. Escape characters that may behave strangely, such as ```.```. (This should be fixed in future.)
-
 ---
 
 ## License
