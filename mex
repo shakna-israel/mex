@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VER='0.0.0'
+VER='0.1.0'
 
 if [ -z "$1" ]; then
   echo 'No file supplied.' >&2
@@ -18,6 +18,10 @@ if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
   echo 'mex [file]'
   echo 'Note: file *must* end in .mf'
   exit 0
+fi
+
+if [ -f '.mex' ]; then
+  echo 'mex macro files not yet implemented.' >&2
 fi
 
 expand() {
