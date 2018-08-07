@@ -60,8 +60,8 @@ macro() {
   # If we have a macro file, find and replace.
   if [ -f '.mex' ]; then
     while IFS= read -r line; do
-      key=$(echo "$line" | awk '{print $1}')
-      value=$(echo "$line" | awk '{print $2}')
+      key=$(echo "$line" | awk '{print $1}' | sed -e 's/[]\/$*.^[]/\\&/g')
+      value=$(echo "$line" | awk '{print $2}' | sed -e 's/[\/&]/\\&/g')
       echo "$1" | sed "s/\_$key\_/$value/g"
     done < '.mex'
   fi
