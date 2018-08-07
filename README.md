@@ -69,6 +69,8 @@ e.g.
       print *, "Hello, World!"
 ```
 
+See also, [comparators](#comparators)
+
 ### Macros
 
 mex also supports user-defined macros, but only simple ones. Find and replace.
@@ -100,6 +102,26 @@ somefile.f:
 real x
 x=27
 ```
+
+### Comparators
+
+mex also supports symbols as comparators, replacing them rather naively. But basically:
+
+| Symbol | Fortran Equivalent | Plain English         |
+| ------ | ------------------ | --------------------- |
+| >      | .gt.               | Greater Than          |
+| <      | .lt.               | Less Than             |
+| <=     | .le.               | Less Than or Equal    |
+| >=     | .ge.               | Greater Than or Equal |
+| ==     | .eq.               | Equal                 |
+| !=     | .ne.               | Not Equal             |
+| &&     | .and.              | And                   |
+| \|\|     | .or.               | Or                    |
+| !      | .not.              | Not                   |
+| \|^     | .xor.              | Exclusive Or          |
+| ~=     | .eqv.              | Equivalent            |
+| ~!     | .neqv.             | Not Equivalent        |
+
 
 ---
 

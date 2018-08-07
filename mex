@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VER='0.2.3'
+VER='0.3.0'
 
 set -e
 
@@ -93,6 +93,40 @@ linecheck() {
   fi
 }
 
+comparators() {
+  # Parameters:
+  # 1: Data string to check over
+
+  echo "$1" | while IFS= read -r line; do
+    # > == .gt.
+    line=$(echo "$line" | sed 's/ > / \.gt\. /g')
+    # < == .lt.
+    line=$(echo "$line" | sed 's/ < / \.lt\. /g')
+    # <= == .le.
+    line=$(echo "$line" | sed 's/ <= / \.le\. /g')
+    # >= == .ge.
+    line=$(echo "$line" | sed 's/ >= / \.ge\. /g')
+    # == == .eq.
+    line=$(echo "$line" | sed 's/ == / \.eq\. /g')
+    # != == .ne.
+    line=$(echo "$line" | sed 's/ != / \.ne\. /g')
+    # && == .and.
+    line=$(echo "$line" | sed 's/ && / \.and\. /g')
+    # || == .or.
+    line=$(echo "$line" | sed 's/ || / \.or\. /g')
+    # ! == .not.
+    line=$(echo "$line" | sed 's/ ! / \.not\. /g')
+    # |^ == .xor.
+    line=$(echo "$line" | sed 's/ |^ / \.xor\. /g')
+    # ~= == .eqv.
+    line=$(echo "$line" | sed 's/ ~= / \.eqv\. /g')
+    # ~! == .neqv.
+    line=$(echo "$line" | sed 's/ ~! / \.neqv\. /g')
+    # output changes.
+    echo "$line"
+  done
+}
+
 # Basic error handling on mex's input.
 if [ ! -f "$1" ]; then
   echo 'Could not find given file.' >&2
@@ -108,6 +142,7 @@ root=$(dirname "$1")
 # Process the given file.
 data=$(expand "$1")
 data=$(macro "$data" "$root")
+data=$(comparators "$data")
 linecheck "$data"
 
 name=$(basename "$1" '.mf')
