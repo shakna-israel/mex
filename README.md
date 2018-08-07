@@ -47,6 +47,40 @@ e.g.
       print *, "Hello, World!"
 ```
 
+### Macros
+
+mex also supports user-defined macros, but only simple ones. Find and replace.
+
+If a ```.mex``` file exists, then each line is treated as a space-seperated key-value pair.
+
+The given source file is checked for each key, pre- and appended with an underscore, and then if found, the value is replaced.
+
+e.g.
+
+.mex:
+
+```
+x 27
+```
+
+somefile.mf:
+
+```
+real x
+x=_x_
+```
+
+Turns into:
+
+somefile.f:
+
+```
+real x
+x=27
+```
+
+**Caution**: These macros pass through sed. Escape characters that may behave strangely, such as ```.```. (This should be fixed in future.)
+
 ---
 
 ## License
