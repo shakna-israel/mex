@@ -1,0 +1,11 @@
+program area
+real r, a, pi
+# Set pi to a constant
+parameter(pi=3.14159)
+print *,"What radius?"
+# Read from user... This can crash
+read *,r
+a=pi*r**2
+# Show the area of the circle!
+print *,"Area:",a
+end

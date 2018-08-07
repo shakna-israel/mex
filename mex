@@ -1,0 +1,70 @@
+#!/bin/sh
+
+VER='0.0.0'
+
+if [ -z "$1" ]; then
+  echo 'No file supplied.' >&2
+  exit 1
+fi
+
+if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
+  echo "mex v$VER"
+  echo '---------'
+  echo ''
+  echo 'A simple macro expander for Fortran 77.'
+  echo '---------------------------------------'
+  echo ''
+  echo 'Usage:'
+  echo 'mex [file]'
+  echo 'Note: file *must* end in .mf'
+  exit 0
+fi
+
+expand() {
+# Parse each line seperately
+while IFS= read -r line; do
+  # First character on line
+  c=$(printf %.1s "$line")
+
+  # If we have a comment, convert it.
+  if [ "$c" = '#' ]; then
+    # Render whole line as a comment.
+    echo "c $(echo "$line" | cut -b2-)"
+    # Exit the interation
+    continue
+  fi
+
+  # If we have a line number
+  if echo "$c" | egrep -q '^[0-9]+$'; then
+    # get the number
+    num=$(echo "$line" | awk '{print $1}')
+    # Get padding needed
+    num_size=$(echo "$num" | wc -c) #wc adds a character, which is fine. We need one more.
+    pad=$(echo "$num_size - 3" | bc)
+    whitespace=$(printf '%*s' "$pad")
+    # Get the rest of the line
+    data=$(echo "$line" | cut -b"$num_size"-)
+    # Render the line
+    # There's an extra space, for the comment column.
+    echo " $num$whitespace$data"
+    # Exit the iteration
+    continue
+  fi
+
+  # Otherwise we have an expression
+  echo "      $line"
+done < "$1"
+}
+
+data=$(expand "$1")
+name=$(basename "$1" '.mf')
+
+# Refuse to overwrite an existing file.
+if [ -f "$name".f ]; then
+  echo 'Error, mex will not overwrite an existing file.' >&2
+  echo "$name.f already exists." >&2
+  exit 1
+fi
+
+# Render to file
+echo "$data" > "$name".f
