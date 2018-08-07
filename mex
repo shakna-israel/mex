@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VER='0.1.0'
+VER='0.1.1'
 
 if [ -z "$1" ]; then
   echo 'No file supplied.' >&2
@@ -40,7 +40,7 @@ while IFS= read -r line; do
     num=$(echo "$line" | awk '{print $1}')
     # Get padding needed
     num_size=$(echo "$num" | wc -c) #wc adds a character, which is fine. We need one more.
-    pad=$(echo "$num_size - 3" | bc)
+    pad=$(echo "5 - $num_size" | bc)
     whitespace=$(printf '%*s' "$pad")
     # Get the rest of the line
     data=$(echo "$line" | cut -b"$num_size"-)
