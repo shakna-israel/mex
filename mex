@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VER='0.1.1'
+VER='0.1.2'
 
 if [ -z "$1" ]; then
   echo 'No file supplied.' >&2
@@ -56,7 +56,19 @@ while IFS= read -r line; do
 done < "$1"
 }
 
+macro() {
+  # If we have a macro file, find and replace.
+  if [ -f '.mex' ]; then
+    while IFS= read -r line; do
+      key=$(echo "$line" | awk '{print $1}')
+      value=$(echo "$line" | awk '{print $2}')
+      echo "$1" | sed "s/\_$key\_/$value/g"
+    done < '.mex'
+  fi
+}
+
 data=$(expand "$1")
+data=$(macro "$data")
 name=$(basename "$1" '.mf')
 
 # Refuse to overwrite an existing file.
@@ -68,12 +80,3 @@ fi
 
 # Render to file
 echo "$data" > "$name".f
-
-# If we have a macro file, find and replace.
-if [ -f '.mex' ]; then
-  while IFS= read -r line; do
-    key=$(echo "$line" | awk '{print $1}')
-    value=$(echo "$line" | awk '{print $2}')
-    sed -i "s/\_$key\_/$value/g" "$name".f
-  done < '.mex'
-fi
