@@ -1,4 +1,4 @@
-# mex
+# James Milne's mex
 
 ## A simple macro-expander for Fortran 77
 
