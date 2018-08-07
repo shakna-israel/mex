@@ -3,7 +3,7 @@ BIN=mex
 
 .PHONY: install
 install:
-	cp mex $(PREFIX)/$(BIN)
+	cp mex $(PREFIX)/bin/$(BIN)
 
 .PHONY: uninstall
-	rm $(PREFIX)/$(BIN)
+	rm $(PREFIX)/bin/$(BIN)
