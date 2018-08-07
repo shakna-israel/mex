@@ -1,7 +1,7 @@
 program area
 real r, a, pi
 # Set pi to a constant
-parameter(pi=3.14159)
+parameter(pi=_pi4_)
 print *,"What radius?"
 # Read from user... This can crash
 read *,r

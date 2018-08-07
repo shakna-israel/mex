@@ -20,10 +20,6 @@ if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
   exit 0
 fi
 
-if [ -f '.mex' ]; then
-  echo 'mex macro files not yet implemented.' >&2
-fi
-
 expand() {
 # Parse each line seperately
 while IFS= read -r line; do
@@ -72,3 +68,12 @@ fi
 
 # Render to file
 echo "$data" > "$name".f
+
+# If we have a macro file, find and replace.
+if [ -f '.mex' ]; then
+  while IFS= read -r line; do
+    key=$(echo "$line" | awk '{print $1}')
+    value=$(echo "$line" | awk '{print $2}')
+    sed -i "s/\_$key\_/$value/g" "$name".f
+  done < '.mex'
+fi
