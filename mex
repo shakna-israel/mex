@@ -1,13 +1,10 @@
 #!/bin/sh -x
 
-VER='0.2.1'
+VER='0.2.2'
 
-if [ -z "$1" ]; then
-  echo 'No file supplied.' >&2
-  exit 1
-fi
+set -e
 
-if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
+if [ -z "$1" ] || [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
   echo "mex v$VER"
   echo '---------'
   echo ''
@@ -21,74 +18,98 @@ if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
 fi
 
 expand() {
-# Parse each line seperately
-while IFS= read -r line; do
-  # First character on line
-  c=$(printf %.1s "$line")
+  # Parse each line seperately
+  while IFS= read -r line; do
+    # First character on line
+    c=$(printf %.1s "$line")
 
-  # If we have a comment, convert it.
-  if [ "$c" = '#' ]; then
-    # Render whole line as a comment.
-    echo "c $(echo "$line" | cut -b2-)"
-    # Exit the interation
-    continue
-  fi
+    # If we have a comment, convert it.
+    if [ "$c" = '#' ]; then
+      # Render whole line as a comment.
+      echo "c $(echo "$line" | cut -b2-)"
+      # Exit the interation
+      continue
+    fi
 
-  # If we have a line number
-  if echo "$c" | egrep -q '^[0-9]+$'; then
-    # get the number
-    num=$(echo "$line" | awk '{print $1}')
-    # Get padding needed
-    num_size=$(echo "$num" | wc -c) #wc adds a character, which is fine. We need one more.
-    pad=$(echo "5 - $num_size" | bc)
-    whitespace=$(printf '%*s' "$pad")
-    # Get the rest of the line
-    data=$(echo "$line" | cut -b"$num_size"-)
-    # Render the line
-    # There's an extra space, for the comment column.
-    echo " $num$whitespace$data"
-    # Exit the iteration
-    continue
-  fi
+    # If we have a line number
+    if echo "$c" | egrep -q '^[0-9]+$'; then
+      # get the number
+      num=$(echo "$line" | awk '{print $1}')
+      # Get padding needed
+      num_size=$(echo "$num" | wc -c) #wc adds a character, which is fine. We need one more.
+      pad=$(echo "5 - $num_size" | bc)
+      whitespace=$(printf '%*s' "$pad")
+      # Get the rest of the line
+      data=$(echo "$line" | cut -b"$num_size"-)
+      # Render the line
+      # There's an extra space, for the comment column.
+      echo " $num$whitespace$data"
+      # Exit the iteration
+      continue
+    fi
 
-  # Otherwise we have an expression
-  echo "      $line"
-done < "$1"
+    # Otherwise we have an expression
+    echo "      $line"
+  done < "$1"
 }
 
 macro() {
+  # Parameters:
+  # 1: data string of an entire file.
+  # 2: Root directory to search for macro file.
+
   # If we have a macro file, find and replace.
   if [ -f "$2"/'.mex' ]; then
     while IFS= read -r line; do
+      # Get the key, and then sanitise it.
       key=$(echo "$line" | awk '{print $1}' | sed -e 's/[]\/$*.^[]/\\&/g')
+      # Get the value and then sanitise it.
       value=$(echo "$line" | awk '{print $2}' | sed -e 's/[\/&]/\\&/g')
+      # Run any replacements on the given data.
       echo "$1" | sed "s/\_$key\_/$value/g"
     done < "$2"/'.mex'
   fi
 }
 
 linecheck() {
-  fail='1'
-  no='0'
+  # Parameters:
+  # 1: Data string to check over to see if less than 80 columns.
+
+  fail='1' # We should show all errors before dying.
+  no='0' # We need to count line numbers for helpful errors.
   echo "$1" | while IFS= read -r line; do
     length=$(echo "$line" | wc -c)
     length=$(echo "$length - 1" | bc) #wc adds a character.
     if [ "$length" -gt 80 ]; then
-      fail='0'
+      fail='0' # Cause to die once errors are finished outputting.
       echo "Line $no is too long." >&2
       echo "Length: $length / 80" >&2
     fi
-    no=$(echo "$no + 1" | bc)
+    no=$(echo "$no + 1" | bc) # Increment line number
   done
+  # Were any errors found?
   if [ "$fail" = '0' ]; then
     exit 1
   fi
 }
 
+# Basic error handling on mex's input.
+if [ ! -f "$1" ]; then
+  echo 'Could not find given file.' >&2
+  exit 1
+fi
+if [ ! -r "$1" ]; then
+  echo 'Could not read given file. Do you have permission?' >&2
+  exit 1
+fi
+
 root=$(dirname "$1")
+
+# Process the given file.
 data=$(expand "$1")
 data=$(macro "$data" "$root")
 linecheck "$data"
+
 name=$(basename "$1" '.mf')
 
 # Refuse to overwrite an existing file.
